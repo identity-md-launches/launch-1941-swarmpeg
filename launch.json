@@ -1,0 +1,27 @@
+{
+  "kind": "univ4_hook",
+  "hook": {
+    "contract": "SwarmPegHook",
+    "constructorArgs": ["$poolManager", "$token", "$factory"],
+    "permissions": [
+      "beforeInitialize",
+      "beforeSwap",
+      "afterSwap",
+      "beforeSwapReturnDelta",
+      "afterSwapReturnDelta"
+    ]
+  },
+  "token": {
+    "contract": "SwarmPeg",
+    "name": "SwarmPeg",
+    "symbol": "SWARMPEG",
+    "decimals": 18
+  },
+  "pool": {
+    "pairedCurrency": "0xd34a99bc0f67ae1bbd63c660e6d0b0dd03e263b7",
+    "fee": 12500,
+    "tickSpacing": 60,
+    "initialPrice": "79228162514264337593543950336"
+  },
+  "notes": "Ethereum mainnet, chain 1. Build with Solidity 0.8.26, Cancun, optimizer 200, viaIR, bytecode_hash none. Deploy SwarmPeg from the network factory with no constructor arguments: fixed single mint of 1000000000000000000000000000 units (18 decimals) to the factory, no owner/mint/pause/upgrade. Factory policy allocates 88% to pool seeding, 2% to the paying requester (or chain treasury per policy), and 10% to its MerkleDistributor. Deploy SwarmPegHook with exactly $poolManager, $token, $factory, in that order. Mine CREATE2 salt for low 14 bits 8396 (0x20cc) using the factory as deployer and the resolved constructor arguments. The hook deploys its ownerless MaintenancePot internally; read maintenancePot(), never supply an external pot address. Only the supplied factory can initialize the single token/IMD pool, fee 12500 and spacing 60, via the supplied PoolManager. Initialization must be atomic with hook deployment. The manifest initialPrice is the policy sentinel; the network deployer computes the actual opening price for 2500 IMD fully diluted value after resolving token sort order. The LP fee is separate from the hook fee. Hook charges floor(gross IMD / 50) on buys and sells, exact-input and exact-output, entirely as IMD ERC-6909 claims owned by the pot. Anyone can call pot.redeem(amount) outside an existing unlock to transfer its claims into IMD held by the same pot; no fee share goes elsewhere. The pot has no withdrawal or spending mechanism: the brief supplies no distribution policy, so funds form an immutable reserve. Exact-input buys and exact-output sells require full fills or revert atomically; the other two modes charge only executed volume. Unrestricted liquidity changes and zero-liquidity factory fee collection incur no hook fee. Glyphs are integer ERC20 balance slots, not separately transferable NFTs. Each new whole slot gets a fresh unique ID, outgoing slots retire last-in-first-out, and fractional balances own no extra glyph. Lazy batches avoid per-token storage loops. Cosmetic glyph seed combines issuance transfer/block/previous holder with live trade entropy and pulse; it is predictable and carries no financial entitlement. Pulse rises 25 per nonzero two-sided trade, caps at 1000, and decays 1 per minute. Higher pulse increases network density and palette brightness and decreases animation duration. All SVG/CSS and JSON metadata are on-chain. See README.md and docs/SECURITY.md for operational responsibilities, assumptions and validation scope. No mainnet transaction was submitted by this contribution; the attesting network deployer performs the factory launch."
+}
